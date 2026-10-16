@@ -19,7 +19,7 @@ STATS = {
     "mean": ("mean_networth", ROOT / "figures" / "networth_gap.png",
              "Means use all five implicates."),
     "median": ("median_networth", ROOT / "figures" / "networth_gap_median.png",
-               "Medians are averaged across the five implicates."),
+               "Medians pool all five implicates, as in the Fed's tables."),
 }
 
 SURFACE = "#fcfcfb"

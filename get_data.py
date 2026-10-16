@@ -69,20 +69,17 @@ def weighted_median(x, w):
 
 
 def summarize(df):
-    """Median and mean net worth per group. Medians are computed within each
-    implicate and averaged; means use all implicates with the full weights.
+    """Median and mean net worth per group, pooling all five implicates with the
+    full weights. This is the Fed's convention: pooled medians reproduce the
+    published SCF tables exactly, while averaging per-implicate medians does not.
     Only families with a child of the reference person at home are kept."""
     df = df[df.kids > 0]
     rows = []
     for group, codes in GROUPS.items():
         g = df[df.edcl.isin(codes)]
-        medians = [
-            weighted_median(gi.networth.to_numpy(), gi.wgt.to_numpy())
-            for _, gi in g.groupby("implicate")
-        ]
         rows.append({
             "group": group,
-            "median_networth": np.mean(medians),
+            "median_networth": weighted_median(g.networth.to_numpy(), g.wgt.to_numpy()),
             "mean_networth": np.average(g.networth, weights=g.wgt),
             "share_of_families": g.wgt.sum() / df.wgt.sum(),
         })
