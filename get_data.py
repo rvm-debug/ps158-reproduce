@@ -1,5 +1,7 @@
 """Download the Fed's Survey of Consumer Finances summary extracts (1989-2025)
-and build a small table of family net worth by education of the reference person.
+and build a small table of family net worth by parental education: families where
+the reference person has a child living at home (KIDS > 0), grouped by the
+reference person's education.
 
 Source: https://www.federalreserve.gov/econres/scfindex.htm
 The summary extract files ("scfpYYYYexcel.zip") are re-released with each new
@@ -56,6 +58,7 @@ def load(year):
         "wgt": df["WGT"],
         "edcl": df["EDCL"],
         "networth": df["NETWORTH"],
+        "kids": df["KIDS"],
     })
 
 
@@ -67,7 +70,9 @@ def weighted_median(x, w):
 
 def summarize(df):
     """Median and mean net worth per group. Medians are computed within each
-    implicate and averaged; means use all implicates with the full weights."""
+    implicate and averaged; means use all implicates with the full weights.
+    Only families with a child of the reference person at home are kept."""
+    df = df[df.kids > 0]
     rows = []
     for group, codes in GROUPS.items():
         g = df[df.edcl.isin(codes)]

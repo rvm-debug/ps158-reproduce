@@ -1,5 +1,6 @@
 """First figure: the wealth gap between college-educated families and families
-with a high school education or less, 1989-2025 (SCF, 2025 dollars).
+with a high school education or less, among families with children at home,
+1989-2025 (SCF, mean net worth, 2025 dollars).
 
 Reads data/networth_by_educ.csv (run get_data.py first).
 Writes figures/networth_gap.png.
@@ -34,7 +35,7 @@ def style(ax):
 
 def main():
     df = pd.read_csv(DATA)
-    wide = df.pivot(index="year", columns="group", values="median_networth") / 1e3
+    wide = df.pivot(index="year", columns="group", values="mean_networth") / 1e3
     ratio = wide["College degree"] / wide["High school or less"]
     years = wide.index
 
@@ -42,7 +43,7 @@ def main():
         2, 1, figsize=(8, 7), sharex=True, height_ratios=[3, 2], facecolor=SURFACE
     )
 
-    # Panel 1: median net worth by group, direct-labeled at the right end
+    # Panel 1: mean net worth by group, direct-labeled at the right end
     for group, color in COLORS.items():
         top.plot(years, wide[group], color=color, linewidth=2, marker="o", markersize=5,
                  markeredgecolor=SURFACE, markeredgewidth=1.5, label=group)
@@ -51,7 +52,7 @@ def main():
     style(top)
     top.set_ylim(0, None)
     top.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"${v:,.0f}k"))
-    top.set_title("Median family net worth, by education of reference person (2025 dollars)",
+    top.set_title("Mean family net worth, by parental education (2025 dollars)",
                   loc="left", fontsize=10, color=INK_2)
     top.legend(loc="upper left", frameon=False, fontsize=9, labelcolor=INK)
 
@@ -64,7 +65,7 @@ def main():
     style(bottom)
     bottom.set_ylim(0, ratio.max() * 1.2)
     bottom.yaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.0f}×"))
-    bottom.set_title("Ratio: college-degree median ÷ high-school-or-less median",
+    bottom.set_title("Ratio: college-degree mean ÷ high-school-or-less mean",
                      loc="left", fontsize=10, color=INK_2)
     bottom.set_xticks(years)
     bottom.set_xlim(years[0] - 1, years[-1] + 5)  # room for end labels
@@ -73,9 +74,9 @@ def main():
                  fontsize=14, fontweight="bold", color=INK)
     fig.text(0.06, 0.01,
              "Source: Federal Reserve Survey of Consumer Finances, summary extract public data. "
-             "Medians averaged across the five implicates.\n"
+             "Means use all five implicates.\n"
              "\"High school or less\" = no diploma or HS diploma/GED; \"College degree\" = bachelor's or more.\n"
-             "Education is that of the family's reference person, not of parents.",
+             "Families where the reference person has a child living at home; education is the reference person's.",
              fontsize=7.5, color=INK_2, va="bottom")
     fig.tight_layout(rect=(0.03, 0.07, 1, 0.97))
 
