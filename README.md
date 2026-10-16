@@ -45,7 +45,43 @@ python3 -m venv .venv
 ```
 
 - `get_data.py` downloads the 13 survey files (about 340 MB) into `data/raw/`,
-  skipping any already there, and writes `data/networth_by_educ.csv`: one row
-  per year and education group, with the median, the mean and the group's share
-  of parent families.
-- `plot.py` reads that CSV and writes both figures to `figures/`.
+  skipping any already there, and writes `data/parents_by_educ.csv`: one row
+  per year and education group, with median and mean net worth, the group's share
+  of parent families, and the debt measures described below.
+- `plot.py` reads that CSV and writes both net worth figures to `figures/`.
+
+## Bonus: debt
+
+**Figure:** `figures/debt_by_educ.pdf` (vector, fonts embedded, for
+submission) and `figures/debt_by_educ.png`, in grayscale journal style. Three
+panels compare parents with a bachelor's degree or more to parents with a high
+school education or less, 1989–2025: (a) the share of families with any debt,
+(b) median debt and (c) mean debt among families with debt, in 2025 dollars.
+
+In 2025, 91% of college-educated parent families and 80% of
+high-school-or-less parent families had debt. Among those with debt, median
+debt was $270K vs. $34K and mean debt was $350K vs. $108K.
+
+**Data:** the same SCF summary extracts and parent families as above. Debt is
+total family debt (`DEBT`): mortgages and home equity lines, other real estate
+loans, other lines of credit, credit card balances, installment loans
+(student, vehicle and other) and other debt. Following the Fed's debt tables
+(Table 13), medians and means are for families holding any debt (`DEBT > 0`). This reproduces the Fed's
+published share, median and mean by education and by family structure in
+every survey year, 1989–2025.
+
+**Reading the median:** for high-school-or-less parents, the median falls
+right at the line between families with mortgages and families without. It
+halves from $67K (2022) to $34K (2025) because the share of debtors with
+home-secured debt slipped from 51% to 45%. The mean is steadier.
+
+**Rerunning:** after setting up the environment as above,
+
+```bash
+.venv/bin/python get_data.py
+.venv/bin/python plot_debt.py
+```
+
+`get_data.py` adds the columns `share_with_debt`, `median_debt` and
+`mean_debt` to `data/parents_by_educ.csv`; `plot_debt.py` reads them and
+writes both debt figure files.

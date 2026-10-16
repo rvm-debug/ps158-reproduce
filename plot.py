@@ -2,7 +2,7 @@
 with a high school education or less, among families with children at home,
 1989-2025 (SCF, 2025 dollars), drawn once with means and once with medians.
 
-Reads data/networth_by_educ.csv (run get_data.py first).
+Reads data/parents_by_educ.csv (run get_data.py first).
 Writes figures/networth_gap.png (mean) and figures/networth_gap_median.png.
 """
 
@@ -13,7 +13,7 @@ import pandas as pd
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 ROOT = Path(__file__).resolve().parent
-DATA = ROOT / "data" / "networth_by_educ.csv"
+DATA = ROOT / "data" / "parents_by_educ.csv"
 # statistic -> (CSV column, output file, footnote on how it is computed)
 STATS = {
     "mean": ("mean_networth", ROOT / "figures" / "networth_gap.png",
