@@ -1,5 +1,5 @@
 """Download the Fed's Survey of Consumer Finances summary extracts (1989-2025)
-and build a small table of family net worth by parental education: families where
+and build a small table of family net worth and debt by parental education: families where
 the reference person has a child living at home (KIDS > 0), grouped by the
 reference person's education.
 
@@ -7,7 +7,7 @@ Source: https://www.federalreserve.gov/econres/scfindex.htm
 The summary extract files ("scfpYYYYexcel.zip") are re-released with each new
 survey, so every year is already in 2025 dollars.
 
-Output: data/networth_by_educ.csv (one row per survey year x education group)
+Output: data/parents_by_educ.csv (one row per survey year x education group)
 """
 
 import io
@@ -23,7 +23,7 @@ URL = "https://www.federalreserve.gov/econres/files/scfp{year}excel.zip"
 
 ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "data" / "raw"
-OUT = ROOT / "data" / "networth_by_educ.csv"
+OUT = ROOT / "data" / "parents_by_educ.csv"
 
 # EDCL: education of the reference person (the SCF has no parents'-education item)
 #   1 = no high school diploma, 2 = high school diploma/GED,
@@ -58,6 +58,7 @@ def load(year):
         "wgt": df["WGT"],
         "edcl": df["EDCL"],
         "networth": df["NETWORTH"],
+        "debt": df["DEBT"],
         "kids": df["KIDS"],
     })
 
@@ -69,10 +70,12 @@ def weighted_median(x, w):
 
 
 def summarize(df):
-    """Median and mean net worth per group, pooling all five implicates with the
-    full weights. This is the Fed's convention: pooled medians reproduce the
-    published SCF tables exactly, while averaging per-implicate medians does not.
-    Only families with a child of the reference person at home are kept."""
+    """Median and mean net worth and debt per group, pooling all five implicates
+    with the full weights. This is the Fed's convention: pooled medians reproduce
+    the published SCF tables exactly, while averaging per-implicate medians does not.
+    As in the Fed's debt tables, debt medians and means are for families holding
+    any debt (DEBT > 0). Only families with a child of the reference person at
+    home are kept."""
     df = df[df.kids > 0]
     rows = []
     for group, codes in GROUPS.items():
@@ -82,6 +85,9 @@ def summarize(df):
             "median_networth": weighted_median(g.networth.to_numpy(), g.wgt.to_numpy()),
             "mean_networth": np.average(g.networth, weights=g.wgt),
             "share_of_families": g.wgt.sum() / df.wgt.sum(),
+            "share_with_debt": g.wgt[g.debt > 0].sum() / g.wgt.sum(),
+            "median_debt": weighted_median(g.debt[g.debt > 0].to_numpy(), g.wgt[g.debt > 0].to_numpy()),
+            "mean_debt": np.average(g.debt[g.debt > 0], weights=g.wgt[g.debt > 0]),
         })
     return rows
 
